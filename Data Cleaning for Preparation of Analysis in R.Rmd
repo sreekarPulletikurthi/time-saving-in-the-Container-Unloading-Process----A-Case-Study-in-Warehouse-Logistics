@@ -1,0 +1,134 @@
+---
+title: "Data Cleaning for Preparation of Analysis in R"
+author: "sreekar"
+date: '2022-05-28'
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse) #helps wrangle data
+
+```
+```{r}
+library(ggplot2)  #helps visualize data
+```
+```{r}
+library(janitor)  #helps visualize data
+library(dplyr)  #helps visualize data
+```
+```{r}
+getwd() #displays your working directory
+```
+
+```{r}
+setwd("C:/Users/NAGESH/Desktop/sql/time-saving-in-the-Container-Unloading-Process----A-Case-Study-in-Warehouse-Logistics")
+
+ ContainerData <- read_csv ("rawDataContainerUnloading2019v2.csv")
+
+```
+```{r}
+glimpse(ContainerData)
+
+```
+The number of rows and columns is correct and so are the data types. We want to narrow the data down to
+the columns of interest and rename the variables at the same time:
+
+```{r}
+core_data <- select(ContainerData,
+DiffTotalPaletteCompletionTimeSeconds,
+TeamSize,
+ItemWeight,
+ItemVolumeCubiccentimeter,
+ItemQuantityPerPalette,
+PaletteNumber)
+
+```
+
+```{r}
+core_data <- rename(core_data,
+time_seconds = DiffTotalPaletteCompletionTimeSeconds,
+team_size = TeamSize,
+item_weight = ItemWeight,
+item_volume = ItemVolumeCubiccentimeter,
+palette_quantity = ItemQuantityPerPalette,
+palette_number = PaletteNumber)
+```
+
+
+```{r}
+glimpse(core_data)
+```
+
+```{r}
+unique(core_data$team_size)
+
+```
+
+```{r}
+unique(core_data$palette_quantity)
+```
+
+```{r}
+unique(core_data$palette_number)
+```
+
+```{r}
+summary(core_data)
+```
+
+```{r}
+write.csv2(core_data, "core_data_v1.csv")
+```
+
+```{r}
+sorted <- arrange(core_data, time_seconds)
+
+```
+```{r}
+print(sorted$time_seconds)
+
+```
+
+```{r}
+core_data_v2 <- core_data %>%
+mutate(item_time = time_seconds / palette_quantity)
+```
+```{r}
+summary(core_data_v2)
+
+```
+```{r}
+sorted_2 <- arrange(core_data_v2, item_time)
+print(sorted_2$item_time)
+
+```
+
+```{r}
+write.csv2(core_data_v2, "core_data_v2.csv")
+core_data_v3 <- filter(core_data_v2, item_time >= 3)
+core_data_v3 <- rename(core_data_v3,
+item_weight_kg = item_weight,
+time_sec = time_seconds)
+
+```
+
+```{r}
+summary(core_data_v3)
+
+```
+```{r}
+glimpse(core_data_v3)
+
+```
+
+```{r}
+write.csv2(core_data_v3, "core_data_v3.csv")
+
+```
+
